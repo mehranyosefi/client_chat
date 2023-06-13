@@ -90,21 +90,14 @@
 
 <script lang="ts" setup>
 
+import { storeToRefs } from 'pinia'
 import apiServices from '@/services/apiServices'
 import userStore from '@/stores/user'
 import usePromis from '@/composables/use-promis'
 import Contact from "@/components/Contact.vue"
 import UserId from '@/constants/types/UserId'
-import { storeToRefs } from 'pinia'
+import User from '@/constants/types/User'
 // import { consume } from '@/composables/upload-able-file'
-
-useHead({
-  title: 'client chat',
-  meta: [{ name: 'description', content: 'client chat of asre danesh afzar' }],
-  link: [
-    { rel: 'icon', type: 'image/png', href: '/favicon.png' }
-  ]
-})
 
 //componentes 
 
@@ -121,6 +114,8 @@ let isActiveConversation = ref<boolean>(false)
 let user_id = ref<UserId>(0)
 const error = ref<any>(null)
 let show_modal = ref<boolean>(false)
+const router = useRouter()
+const route = useRoute()
 
 
 //computed
@@ -132,12 +127,11 @@ const addConversationIcon = computed<boolean>(() => {
   return false
 })
 
-
-
 //hooks
 
 onBeforeMount(async () => {
   await get_users()
+  initializeApp()
 })
 
 onMounted(() => {
@@ -221,6 +215,15 @@ function trigger_show_modal(): void {
     input.focus()
   })
 }
+
+function initializeApp(): void {
+  if(route.hash) {
+    const id = route.hash.split('#')[1]
+    const res = userStore().items.find((user:User) => user.id == id)
+    if(res) trigger_conversation(id)
+  }
+}
+
 
 </script>
 
