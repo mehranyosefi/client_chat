@@ -2,9 +2,8 @@
    <section id="header" class="bg-gray-800 py-5 px-2 shadow-2xl sticky top-0 z-0">
       <div class="flex justify-between items-center px-2 relative">
          <div class="flex">
-            <svg @click="back" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-               version="1.1" viewBox="0 0 24 24"
-               class="w-10 h-10 fill-gray-400 hover:fill-gray-100 md:hidden cursor-pointer mt-2">
+            <svg @click="back" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+               viewBox="0 0 24 24" class="w-10 h-10 fill-gray-400 hover:fill-gray-100 md:hidden cursor-pointer mt-2">
                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
             </svg>
             <div class="flex items-center mr-3">
@@ -52,8 +51,11 @@
                         class="mx-2 border rounded">
                   </div>
                   <div class="mx-auto text-center">
-                     <button @click="trigger_send_file"
-                        class="w-32 rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-700 text-base font-medium text-white hover:bg-blue-800 focus:outline-none ">ارسال</button>
+                     <button @click="trigger_send_file" class="w-32 rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-700 text-base
+                        font-medium text-white hover:bg-blue-800 focus:outline-none ">
+                        ارسال
+                     </button>
+
                   </div>
                </div>
             </div>
@@ -67,27 +69,37 @@
       </section>
 
       <section id="footer" class="w-full md:w-2/3  fixed left-0 bottom-0 px-4 pb-4">
-         <v-form class="w-full" @submit="onSubmit">
-            <div class="relative flex justify-center items-center w-100 md:w-3/4 m-auto">
-               <v-field name="pm" type="text" :rules="customValidate"
-                  class="w-5/6 md:w-2/3 bg-gray-800 text-white rounded-r-2xl rounded-bl-sm rounded-tl-2xl py-2 px-3 border-gray-800">
-               </v-field>
+         <v-form class="w-full" @submit.prevent="onSubmit">
+            <div class="relative flex justify-center items-end w-100 md:w-3/4 m-auto">
+               <div
+               class="w-5/6 md:w-2/3 bg-gray-800 text-white rounded-r-2xl rounded-bl-sm rounded-tl-2xl py-2 px-3 border-gray-800"
+               >
+               <div contenteditable="true" class="w-[91%] px-2 py-1 border-transparent outline-none"
+               @input="customValidate" id="entry-element"
+               ></div>
+            </div>
                <input type="file" class="hidden" ref="file" id="input-file" multiple @change="uploadFile">
                <button v-if="!validInput" @click="selectFile()" class="absolute icon-upload">
                   <svg class="fill-gray-300 hover:fill-gray-100 " xmlns="http://www.w3.org/2000/svg"
-                     xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="32" height="32"
-                     viewBox="0 0 24 24">
+                     xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="32" height="32" viewBox="0 0 24 24">
                      <path
                         d="M7.5,18A5.5,5.5 0 0,1 2,12.5A5.5,5.5 0 0,1 7.5,7H18A4,4 0 0,1 22,11A4,4 0 0,1 18,15H9.5A2.5,2.5 0 0,1 7,12.5A2.5,2.5 0 0,1 9.5,10H17V11.5H9.5A1,1 0 0,0 8.5,12.5A1,1 0 0,0 9.5,13.5H18A2.5,2.5 0 0,0 20.5,11A2.5,2.5 0 0,0 18,8.5H7.5A4,4 0 0,0 3.5,12.5A4,4 0 0,0 7.5,16.5H17V18H7.5Z" />
                   </svg>
                </button>
-               <button
-                  class="rounded-full mr-2 w-11 h-11 flex justify-center items-center pr-1 shadow-2xl cursor-pointer bg-gray-800">
-                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
-                     width="28" height="28" viewBox="0 0 24 24" style=" transform: rotate(180deg);" fill="white">
-                     <path
-                        d="M4 6.03L11.5 9.25L4 8.25L4 6.03M11.5 14.75L4 17.97V15.75L11.5 14.75M2 3L2 10L17 12L2 14L2 21L23 12L2 3Z" />
-                  </svg>
+               <button class="icon-send" type="button" @click="validInput ? onSubmit() : recordTrigger()">
+                  <Transition enter-active-class="animate__animated animate__fadeIn"
+                  leave-active-class="animate__animated animate__fadeOut">
+                     <svg v-if="validInput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+                        width="28" height="28" viewBox="-8 -5 37 35" style=" transform: rotate(180deg);" fill="white">
+                        <path d="M4 6.03L11.5 9.25L4 8.25L4 6.03M11.5 14.75L4 17.97V15.75L11.5 14.75M2 3L2 10L17 12L2 14L2 21L23 12L2 3Z" />
+                     </svg>
+                     <svg v-else fill="white" xmlns="http://www.w3.org/2000/svg" height="28" viewBox="-8 -5 37 35" width="28">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path
+                           d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
+                     </svg>
+                  </Transition>
+
                </button>
             </div>
             <!-- <v-error-message name="pm" class="w-full fixed text-gray-200 block text-xs bottom-2 text-right pr-20"></v-error-message> -->
@@ -95,8 +107,6 @@
       </section>
 
    </drop-zone>
-
-
 </template>
 
 
@@ -226,37 +236,26 @@ function connect_to_ws() {
 }
 
 
-function customValidate(value: any) {
-   validInput.value = value
-   if (!value || /profanity/gi.test(value)) {
+function customValidate(e: any) {
+   validInput.value = e.target.innerText
+   if (!validInput.value || /profanity/gi.test(validInput.value)) {
       return false
    }
    return true
 }
 
-async function onSubmit(value: any, { resetForm }: { resetForm: () => void }) {
+async function onSubmit() {
    try {
-      register('pm')
-      ws.send(encode(value))
+      // register('pm')
+      ws.send(encode(validInput.value))
    } catch (e) {
       console.log(e)
       return
    }
-   push_message(true, value.pm)
-   if (value.pm === 'restart') {
-      if (ws.readyState === state_ws.OPEN) {
-         ws.close()
-         ws = connect_to_ws()
-         ws.onopen = () => {
-            ws.binaryType = 'arraybuffer'
-            console.log('reconnected to server successfully')
-         }
-      }
-   }
+   push_message(true, validInput.value)
    onMessage()
-
-   resetForm()
-
+   validInput.value = ''
+   document.getElementById('entry-element')!.innerText = ''
 }
 
 function delete_message(id: number): void {
@@ -327,17 +326,17 @@ function trigger_send_file() {
    files.value = []
 }
 
-function send_file( file: any, callback: (( bytesNotSent: number ) => void ) | null ) {
-   ws.send(encode(file) )
-   if ( callback != null ) {
+function send_file(file: any, callback: ((bytesNotSent: number) => void) | null) {
+   ws.send(encode(file))
+   if (callback != null) {
       let interval = setInterval(function () {
          //  console.log(ws.bufferedAmount)
-         if ( ws.bufferedAmount > 0 ) {
+         if (ws.bufferedAmount > 0) {
             console.log('yes')
-            callback( ws.bufferedAmount )
+            callback(ws.bufferedAmount)
          } else {
-            callback( 0 )
-            clearInterval( interval );
+            callback(0)
+            clearInterval(interval);
          }
       }, 100);
    }
@@ -345,11 +344,16 @@ function send_file( file: any, callback: (( bytesNotSent: number ) => void ) | n
 }
 
 
+function recordTrigger() {
+   console.log('start voice recorder')
+}
+
+
 
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="postcss" scoped>
 #messages {
    height: calc(100vh - 158px);
 
@@ -363,22 +367,11 @@ function send_file( file: any, callback: (( bytesNotSent: number ) => void ) | n
 }
 
 .icon-upload {
-   left: 18%;
+   left: 16%;
+   @apply bottom-2 sm:left-[14%] md:left-[24%] lg:left-[22%];
+}
 
-   @include xsmall {
-      left: 16%;
-   }
-
-   @include small {
-      left: 14%;
-   }
-
-   @include medium {
-      left: 25%;
-   }
-
-   @include large {
-      left: 22%;
-   }
+.icon-send {
+   @apply rounded-full mr-2 w-11 h-11 flex justify-center items-center shadow-2xl cursor-pointer bg-gray-800 hover:bg-blue-700;
 }
 </style>

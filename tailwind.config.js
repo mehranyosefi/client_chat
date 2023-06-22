@@ -1,5 +1,14 @@
 module.exports = {
-  theme: {},
+  theme: {
+    screens: {
+      'xsm': '378px',
+      'sm': '570px',
+      'md': '768px',
+      'lg': '1024px',
+      'xl': '1280px',
+      '2xl': '1536px',
+    }
+  },
   plugins: [],
   content: [
     `${srcDir}/components/**/*.{vue,js,ts}`,

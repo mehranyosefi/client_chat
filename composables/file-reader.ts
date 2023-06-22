@@ -16,8 +16,6 @@ export default function () {
         }
         if (event.type === 'progress') {
             currentProgress.value = `${(event.loaded.valueOf() / totalSize.value).toFixed(2) * 100}%`;
-            console.log('Progress: ', currentProgress.value);
-            console.log('Bytes transferred: ', event.loaded, 'bytes');
         }
         if (event.type === 'loadstart') {
             totalSize.value = event.total;

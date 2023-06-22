@@ -136,6 +136,12 @@ onBeforeMount(async () => {
 
 onMounted(() => {
   window.addEventListener('resize', handleResize)
+  try{
+    const res = $fetch('http://127.0.0.1:8000/api')
+    console.log('res',res)
+  }catch(e) {
+    console.log(e)
+  }
 })
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
