@@ -72,28 +72,38 @@
          <v-form class="w-full" @submit.prevent="onSubmit">
             <div class="relative flex justify-center items-end w-100 md:w-3/4 m-auto">
                <div
-               class="w-5/6 md:w-2/3 bg-gray-800 text-white rounded-r-2xl rounded-bl-sm rounded-tl-2xl py-2 px-3 border-gray-800"
-               >
-               <div contenteditable="true" class="w-[91%] px-2 py-1 border-transparent outline-none"
-               @input="customValidate" id="entry-element"
-               ></div>
-            </div>
+                  class="w-5/6 md:w-2/3 bg-gray-800 text-white rounded-r-2xl rounded-bl-sm rounded-tl-2xl py-2 px-3 border-gray-800">
+                  <div contenteditable="true" class="w-[91%] px-2 py-1 border-transparent outline-none" :class="{ 'pl-0': voiceRecording }"
+                     @input="customValidate" id="entry-element">
+                     <div v-if="voiceRecording" class="float-left">
+                       00:00:00
+                     </div>
+                  </div>
+               </div>
                <input type="file" class="hidden" ref="file" id="input-file" multiple @change="uploadFile">
-               <button v-if="!validInput" @click="selectFile()" class="absolute icon-upload">
-                  <svg class="fill-gray-300 hover:fill-gray-100 " xmlns="http://www.w3.org/2000/svg"
+               <button v-if="!validInput && !voiceRecording" @click="selectFile()" type="button" class="absolute icon-upload">
+                  <svg class="fill-gray-300 hover:fill-gray-100 " xmlns="http://www.w3.org/2000/svg" fill="red"
                      xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="32" height="32" viewBox="0 0 24 24">
                      <path
                         d="M7.5,18A5.5,5.5 0 0,1 2,12.5A5.5,5.5 0 0,1 7.5,7H18A4,4 0 0,1 22,11A4,4 0 0,1 18,15H9.5A2.5,2.5 0 0,1 7,12.5A2.5,2.5 0 0,1 9.5,10H17V11.5H9.5A1,1 0 0,0 8.5,12.5A1,1 0 0,0 9.5,13.5H18A2.5,2.5 0 0,0 20.5,11A2.5,2.5 0 0,0 18,8.5H7.5A4,4 0 0,0 3.5,12.5A4,4 0 0,0 7.5,16.5H17V18H7.5Z" />
                   </svg>
                </button>
+               <button v-show="voiceRecording" type="button" class="cancelRecording">
+                  <svg xmlns="http://www.w3.org/2000/svg" height="28" viewBox="0 -960 960 960" width="28" fill="red">
+                     <path d="M261-120q-24.75 0-42.375-17.625T201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z"/>
+                  </svg>
+               </button>
                <button class="icon-send" type="button" @click="validInput ? onSubmit() : recordTrigger()">
                   <Transition enter-active-class="animate__animated animate__fadeIn"
-                  leave-active-class="animate__animated animate__fadeOut">
-                     <svg v-if="validInput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
-                        width="28" height="28" viewBox="-8 -5 37 35" style=" transform: rotate(180deg);" fill="white">
-                        <path d="M4 6.03L11.5 9.25L4 8.25L4 6.03M11.5 14.75L4 17.97V15.75L11.5 14.75M2 3L2 10L17 12L2 14L2 21L23 12L2 3Z" />
+                     leave-active-class="animate__animated animate__fadeOut">
+                     <svg v-if="validInput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                        version="1.1" width="28" height="28" viewBox="-8 -5 37 35" style=" transform: rotate(180deg);"
+                        fill="white">
+                        <path
+                           d="M4 6.03L11.5 9.25L4 8.25L4 6.03M11.5 14.75L4 17.97V15.75L11.5 14.75M2 3L2 10L17 12L2 14L2 21L23 12L2 3Z" />
                      </svg>
-                     <svg v-else fill="white" xmlns="http://www.w3.org/2000/svg" height="28" viewBox="-8 -5 37 35" width="28">
+                     <svg v-else fill="white" xmlns="http://www.w3.org/2000/svg" height="28" viewBox="-8 -5 37 35"
+                        width="28">
                         <path d="M0 0h24v24H0z" fill="none" />
                         <path
                            d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
@@ -154,7 +164,7 @@ const { addFiles, files } = uploadablefile()
 
 const percentage = ref<number>(0)
 
-
+const voiceRecording = ref<boolean>(false)
 
 
 //enum
@@ -345,10 +355,61 @@ function send_file(file: any, callback: ((bytesNotSent: number) => void) | null)
 
 
 function recordTrigger() {
-   console.log('start voice recorder')
+   let audioIN = { audio: true, video: false };
+   navigator.mediaDevices.getUserMedia(audioIN)
+      .then((mediaStreamObj) => {
+         let audio = document.createElement('audio')
+         audio.setAttribute("controls", "controls")
+         audio.style.width = '200px'
+         audio.style.height = '100px'
+         if ("srcObject" in audio) {
+            audio.srcObject = mediaStreamObj;
+         }
+
+         let messages = document.querySelector('#messages .messages')
+         
+         let mediaRecorder = new MediaRecorder(mediaStreamObj);
+         mediaRecorder.start();
+         audio.onloadedmetadata = ()=> {
+         }
+         voiceRecording.value = true
+         document.querySelector('#footer .cancelRecording')?.addEventListener('click', ()=> {
+            mediaRecorder.stop()
+            voiceRecording.value = false
+         })
+
+         let dataArray: Array<ArrayBuffer| Blob> = []
+
+         mediaRecorder.ondataavailable = function (ev) {
+          dataArray.push(ev.data);
+        }
+        // Chunk array to store the audio data
+        
+        // Convert the audio data in to blob
+        // after stopping the recording
+        mediaRecorder.onstop = function (ev) {
+ 
+          // blob of type mp3
+         let audioData = new Blob(dataArray,
+                  { 'type': 'audio/mp3;' })
+         
+          // After fill up the chunk
+          // array make it empty
+          dataArray = [];
+ 
+          let audioSrc = window.URL
+         .createObjectURL(audioData);
+         let audio2 = document.createElement('audio')
+         audio2.setAttribute("controls", "controls")
+          // Pass the audio url to the 2nd audio tag
+          audio2.src = audioSrc
+          messages?.appendChild(audio2)
+
+        }
+      }).catch((e)=> {
+         console.log(e)
+      })
 }
-
-
 
 
 </script>
@@ -373,5 +434,17 @@ function recordTrigger() {
 
 .icon-send {
    @apply rounded-full mr-2 w-11 h-11 flex justify-center items-center shadow-2xl cursor-pointer bg-gray-800 hover:bg-blue-700;
+}
+
+.cancelRecording {
+   @apply rounded-full mr-2 w-11 h-11 flex justify-center items-center shadow-2xl cursor-pointer bg-gray-800;
+
+   &:hover{
+      @apply bg-red-800;
+
+      svg {
+         @apply fill-white;
+      }
+   }
 }
 </style>
