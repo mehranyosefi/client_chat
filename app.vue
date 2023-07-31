@@ -172,6 +172,7 @@ function handleResize(): void {
     isActiveConversation.value = true
   }
 }
+
 let trigger_conversation = (id: string | number): void => {
   user_id.value = id
   isActiveConversation.value = true

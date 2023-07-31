@@ -93,10 +93,10 @@
                      <path d="M261-120q-24.75 0-42.375-17.625T201-180v-570h-41v-60h188v-30h264v30h188v60h-41v570q0 24-18 42t-42 18H261Zm438-630H261v570h438v-570ZM367-266h60v-399h-60v399Zm166 0h60v-399h-60v399ZM261-750v570-570Z"/>
                   </svg>
                </button>
-               <button class="icon-send" type="button" @click="validInput ? onSubmit() : recordTrigger()">
+               <button class="icon-send" type="button" @click="validInput ? onSubmit() : voiceRecording ? mediaRecorder.stop() :recordTrigger()">
                   <Transition enter-active-class="animate__animated animate__fadeIn"
                      leave-active-class="animate__animated animate__fadeOut">
-                     <svg v-if="validInput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                     <svg v-if="validInput || voiceRecording" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                         version="1.1" width="28" height="28" viewBox="-8 -5 37 35" style=" transform: rotate(180deg);"
                         fill="white">
                         <path
@@ -165,7 +165,8 @@ const { addFiles, files } = uploadablefile()
 const percentage = ref<number>(0)
 
 const voiceRecording = ref<boolean>(false)
-
+let dataArray: Array<ArrayBuffer| Blob> = []
+let mediaRecorder: MediaRecorder
 
 //enum
 
@@ -355,62 +356,38 @@ function send_file(file: any, callback: ((bytesNotSent: number) => void) | null)
 
 
 function recordTrigger() {
-   let audioIN = { audio: true, video: false };
+   let audioIN = { audio: true };
    navigator.mediaDevices.getUserMedia(audioIN)
       .then((mediaStreamObj) => {
-         let audio = document.createElement('audio')
-         audio.setAttribute("controls", "controls")
-         audio.style.width = '200px'
-         audio.style.height = '100px'
-         if ("srcObject" in audio) {
-            audio.srcObject = mediaStreamObj;
-         }
 
-         let messages = document.querySelector('#messages .messages')
-         
-         let mediaRecorder = new MediaRecorder(mediaStreamObj);
-         mediaRecorder.start();
-         audio.onloadedmetadata = ()=> {
-         }
+         mediaRecorder = new MediaRecorder(mediaStreamObj);
+         mediaRecorder.start()
          voiceRecording.value = true
          document.querySelector('#footer .cancelRecording')?.addEventListener('click', ()=> {
-            mediaRecorder.stop()
             voiceRecording.value = false
          })
 
-         let dataArray: Array<ArrayBuffer| Blob> = []
+         mediaRecorder.ondataavailable = function (ev: { data: ArrayBuffer | Blob }) {
+            dataArray.push(ev.data);
+         }
 
-         mediaRecorder.ondataavailable = function (ev) {
-          dataArray.push(ev.data);
-        }
-        // Chunk array to store the audio data
-        
-        // Convert the audio data in to blob
-        // after stopping the recording
-        mediaRecorder.onstop = function (ev) {
- 
-          // blob of type mp3
-         let audioData = new Blob(dataArray,
-                  { 'type': 'audio/mp3;' })
-         
-          // After fill up the chunk
-          // array make it empty
-          dataArray = [];
- 
-          let audioSrc = window.URL
-         .createObjectURL(audioData);
-         let audio2 = document.createElement('audio')
-         audio2.setAttribute("controls", "controls")
-          // Pass the audio url to the 2nd audio tag
-          audio2.src = audioSrc
-          messages?.appendChild(audio2)
+         mediaRecorder.onstop = ()=> {
+            let messages = document.querySelector('#messages .messages')
+            let audioData = new Blob(dataArray,{ 'type': 'audio/mp3' })
+            dataArray = [];
+            let audioSrc = window.URL.createObjectURL(audioData);
+            let audio2 = document.createElement('audio')
+            audio2.setAttribute("controls", "controls")
+            audio2.src = audioSrc
+            messages?.appendChild(audio2)
+            voiceRecording.value = false
 
-        }
+         }
+
       }).catch((e)=> {
          console.log(e)
       })
 }
-
 
 </script>
 

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
 
-export default function {
+export default function() {
     
 }
