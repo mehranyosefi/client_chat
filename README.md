@@ -18,6 +18,15 @@ npm install
 pnpm install
 ```
 
+##watching better result of project 
+
+npm install -g json-server
+
+json-server --watch db.json --port 4000
+
+node ./server.js
+
+
 ## Development Server
 
 Start the development server on `http://localhost:3000`
