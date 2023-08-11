@@ -1,24 +1,42 @@
-import useFetch from "@/composables/use-fetch"
-import Message  from "@/constants/types/Message"
+// import useFetch from "~/composables/use-custome-fetch"
+const APISettings = {
+   headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+   },
+   withCredentials: true
+}
 
 export default {
    getUsers() {
-      return useFetch('users')
+      return $fetch(`${ useRuntimeConfig().public.base_url }/users`, {
+         ...APISettings
+      })
    },
    addUser(user: any) {
-      return useFetch('users', 'POST', user)
+      return fetch(`${ useRuntimeConfig().public.base_url }/users`,{
+         ...APISettings,
+         method: "POST",
+         body: user
+      })
    },
    getUser(user_id: string | number) {
-      return useFetch(`users/?id=${encodeURIComponent( user_id )}`)
+      return $fetch(`${ useRuntimeConfig().public.base_url }/users/?id=${encodeURIComponent( user_id )}`, { ...APISettings })
    },
-   sendMessage(data: Message) {
-      return useFetch(`messages`, 'POST', data)
-   },
+   // sendMessage(data: Message) {
+   //    return $fetch(`messages`, 'POST', data)
+   // },
    deleteMessage( id : string | number ) {
-      return useFetch(`messages/${id}`, 'DELETE')
+      return $fetch(`${ useRuntimeConfig().public.base_url }/messages/${id}`, {
+         ...APISettings,
+         method: "DELETE"
+      })
    },
    deleteUser(id : string | number) {
-      return useFetch(`users/${id}`, 'DELETE')
+      return $fetch(`${ useRuntimeConfig().public.base_url }/users/${id}`, {
+         ...APISettings,
+         method: "DELETE"
+      })
    }
 
 }

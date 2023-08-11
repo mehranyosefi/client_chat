@@ -1,5 +1,5 @@
 <template>
-  <!-- <div class="2xl:container mx-auto bg-gray-900">
+  <div class="2xl:container mx-auto bg-gray-900">
     <div class="grid grid-cols-1">
       <div v-if="items.length && user_id === 0" class="hidden md:block">
         <div class="absolute left-0 h-full w-2/3 flex justify-center items-center">
@@ -84,7 +84,7 @@
         </v-form>
       </Modal>
     </transition>
-  </div> -->
+  </div>
   <NuxtPage/>
 </template>
 

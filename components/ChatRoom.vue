@@ -1,14 +1,17 @@
 <template>
    <section id="header" class="bg-gray-800 py-5 px-2 shadow-2xl sticky top-0 z-0">
+      <Head>
+         <Title>{{ user.name }}</Title>
+      </Head>
       <div class="flex justify-between items-center px-2 relative">
          <div class="flex">
-            <svg @click="back" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+            <svg @click="router.push('/')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
                viewBox="0 0 24 24" class="w-10 h-10 fill-gray-400 hover:fill-gray-100 md:hidden cursor-pointer mt-2">
                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
             </svg>
             <div class="flex items-center mr-3">
-               <img :src="user.value.thumbnail" class="avatar">
-               <span v-text="user.value.name" class="text-white mr-3"></span>
+               <img :src="user.thumbnail" class="avatar">
+               <span v-text="user.name" class="text-white mr-3"></span>
             </div>
          </div>
          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
@@ -22,7 +25,7 @@
             <div v-if="showOption" class="absolute left-10 top-3 rounded-md w-16 bg-gray-700 p-1">
                <ul class="w-full">
                   <li class="hover:bg-gray-600 text-white">
-                     <button class="w-full py-2 px-1 hover:rounded-md" @click="delete_user()">حذف</button>
+                     <button class="w-full py-2 px-1 hover:rounded-md" @click="deleteUser">حذف</button>
                   </li>
                </ul>
             </div>
@@ -131,12 +134,12 @@ import messageStore from '@/stores/message'
 import MessagePack from 'what-the-pack'
 import { Buffer } from 'buffer'
 import uploadablefile from '@/composables/upload-able-file'
+import { userStore } from '~/stores/user'
 
 //props
 
 let props = defineProps<{
-   user_id: UserId,
-   back: () => void
+   user_id: UserId
 }>()
 
 
@@ -148,25 +151,20 @@ const emit = defineEmits(['delete_user'])
 
 //data
 
-let user = reactive({
-   value: {} as User
-})
-
+let user = reactive({} as User)
 let showOption = ref<boolean>(false)
-
 let ws = ref<any>(null)
-
 const { encode, decode, register } = MessagePack.initialize(2 ^ 20)
-
 let validInput = ref<string>('')
-
 const { addFiles, files } = uploadablefile()
-
 const percentage = ref<number>(0)
-
 const voiceRecording = ref<boolean>(false)
 let dataArray: Array<ArrayBuffer| Blob> = []
 let mediaRecorder: MediaRecorder
+const router = useRouter()
+const { delete_user } = userStore()
+
+
 
 //enum
 
@@ -189,7 +187,6 @@ watch(() => props.user_id, async () => {
    // $forceUpdate()
    if (ws.readyState === state_ws.OPEN) ws.close()
    await get_user()
-   test_websocket()
    onMessage()
 })
 
@@ -197,7 +194,6 @@ watch(() => props.user_id, async () => {
 
 
 await get_user()
-test_websocket()
 
 
 //hooks
@@ -220,12 +216,8 @@ onUnmounted(() => {
 //methods
 
 async function get_user() {
-   const getUser = usePromis(apiServices.getUser)
-   await getUser.createPromis(props.user_id as string | number)
-   if (getUser.result) {
-      user.value = toRaw(getUser.result)[0]
-   }
-
+   const { data, error } = await useAsyncData('user', ()=> apiServices.getUser(props.user_id))
+   if(data.value[0]) user = data.value[0]
 }
 
 
@@ -242,8 +234,7 @@ function test_websocket() {
 
 
 function connect_to_ws() {
-   // return new WebSocket('wss://demo.piesocket.com/v3/channel_1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self')
-   return new WebSocket('ws://localhost:8080')
+   return new WebSocket('wss://socketsbay.com/wss/v2/1/demo/')
 }
 
 
@@ -273,11 +264,15 @@ function delete_message(id: number): void {
    messageStore().delete_message(id)
 }
 
-let delete_user = async () => {
-   const du = usePromis(apiServices.deleteUser)
-   await du.createPromis(user.value.id)
-   if (du.result) {
-      emit('delete_user', user.value.id)
+async function deleteUser() {
+   try{
+      await apiServices.deleteUser(props.user_id)
+      const res = delete_user(props.user_id)
+      if (res) {
+         router.push('/')
+      }
+   }catch(e) {
+      console.log(e)
    }
 }
 
@@ -388,6 +383,8 @@ function recordTrigger() {
          console.log(e)
       })
 }
+
+if(process.client) test_websocket()
 
 </script>
 

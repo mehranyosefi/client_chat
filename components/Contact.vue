@@ -1,7 +1,6 @@
 <template>
-   <li class="contact"
-      @click="emit('trigger_conversation', user.id)" :class="{ 'active': active }">
-      <nuxt-link :to="`#${ user.id }`" class="flex items-center p-3">
+   <li class="contact">
+      <nuxt-link :to="`/${ user.id }`" class="flex items-center p-3" active-class="bg-blue-800">
          <img class="avatar" :src="user.thumbnail" :alt="`image of ${user.thumbnail}`">
          <span class="mr-2" v-text="user.name"></span>
       </nuxt-link>
@@ -9,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 import User from '@/constants/types/User'
 
 //props
@@ -29,15 +27,15 @@ const route = useRoute()
 
 
 
-//computed
+// //computed
 
-const active = computed (()=> {
-   if(route.hash){
-      console.log(route.hash)
-    return route.hash.split('#')[1] == props.user.id
-  }
-  return false
-}) 
+// const active = computed (()=> {
+//    if(route.hash){
+//       console.log(route.hash)
+//     return route.hash.split('#')[1] == props.user.id
+//   }
+//   return false
+// }) 
 
 </script>
 

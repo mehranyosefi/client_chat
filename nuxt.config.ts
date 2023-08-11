@@ -1,9 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-   ssr: false,
-
    typescript: {
       strict: true
+   },
+   runtimeConfig :{
+      public: {
+         base_url: process.env.BASE_URL,
+         base_url_api: process.env.BASE_URL_API
+      }
    },
    app: {
       head: {
@@ -14,11 +18,13 @@ export default defineNuxtConfig({
             rel: 'icon',
             href: '/social_facebook_messenger_icon-icons.com_66150.ico'
          }]
-      }
+      },
+      pageTransition: { name: 'page', mode: 'out-in' }
    },
    modules: [
       '@nuxtjs/tailwindcss', '@pinia/nuxt'
    ],
+   buildModules: ['@nuxt/typescript-build'],
 
    tailwindcss: {
       content: [
