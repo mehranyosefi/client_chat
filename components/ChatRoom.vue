@@ -1,14 +1,17 @@
 <template>
    <section id="header" class="bg-gray-800 py-5 px-2 shadow-2xl sticky top-0 z-0">
+      <Head>
+         <Title>{{ user?.name }}</Title>
+      </Head>
       <div class="flex justify-between items-center px-2 relative">
          <div class="flex">
-            <svg @click="back" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
+            <svg @click="router.push('/')" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
                viewBox="0 0 24 24" class="w-10 h-10 fill-gray-400 hover:fill-gray-100 md:hidden cursor-pointer mt-2">
                <path d="M4,11V13H16L10.5,18.5L11.92,19.92L19.84,12L11.92,4.08L10.5,5.5L16,11H4Z" />
             </svg>
             <div class="flex items-center mr-3">
-               <img :src="user.value.thumbnail" class="avatar">
-               <span v-text="user.value.name" class="text-white mr-3"></span>
+               <img :src="user?.thumbnail" class="avatar cursor-pointer" @click.stop="showProfile = true">
+               <span v-text="user?.name" class="text-white mr-3"></span>
             </div>
          </div>
          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
@@ -22,7 +25,7 @@
             <div v-if="showOption" class="absolute left-10 top-3 rounded-md w-16 bg-gray-700 p-1">
                <ul class="w-full">
                   <li class="hover:bg-gray-600 text-white">
-                     <button class="w-full py-2 px-1 hover:rounded-md" @click="delete_user()">حذف</button>
+                     <button class="w-full py-2 px-1 hover:rounded-md" @click="deleteUser">حذف</button>
                   </li>
                </ul>
             </div>
@@ -38,7 +41,7 @@
                   <div>فایل ها را رها کنید</div>
                </div>
             </div>
-            <div v-else-if="!dropZoneActive && files.length > 0" class="absolute w-full sm:w-2/3 bg-gray-600 z-10 py-7">
+            <div v-else-if="!dropZoneActive && files?.length > 0" class="absolute w-full sm:w-2/3 bg-gray-600 z-10 py-7">
                <h1 class="text-base text-gray-100 px-1 inline-block">فایل های انتخاب شده:</h1>
                <svg @click="files = []" class="inline-block float-left ml-5" xmlns="http://www.w3.org/2000/svg"
                   xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="32" height="32" viewBox="0 0 24 24">
@@ -51,7 +54,7 @@
                         class="mx-2 border rounded">
                   </div>
                   <div class="mx-auto text-center">
-                     <button @click="trigger_send_file" class="w-32 rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-700 text-base
+                     <button @click="trigger_send_file()" class="w-32 rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-700 text-base
                         font-medium text-white hover:bg-blue-800 focus:outline-none ">
                         ارسال
                      </button>
@@ -63,7 +66,7 @@
          <nav>
             <!-- <span class="text-white">{{ percentage }}</span> -->
             <ul class="messages flex flex-col p-3">
-               <Pm v-for="(message, i) in messages" :key="i" :message="message" @delete_message="delete_message" />
+               <Pm v-for="(message, i) in messages" :key="i" :message="message" />
             </ul>
          </nav>
       </section>
@@ -74,9 +77,9 @@
                <div
                   class="w-5/6 md:w-2/3 bg-gray-800 text-white rounded-r-2xl rounded-bl-sm rounded-tl-2xl py-2 px-3 border-gray-800">
                   <div contenteditable="true" class="w-[91%] px-2 py-1 border-transparent outline-none" :class="{ 'pl-0': voiceRecording }"
-                     @input="customValidate" id="entry-element">
+                     @input="customValidate" id="entry-element" @keydown.enter.prevent="onSubmit">
                      <div v-if="voiceRecording" class="float-left">
-                       00:00:00
+                        <span class="text-red-600"> {{ hour }}:{{ minutes }}:{{ second }} </span>
                      </div>
                   </div>
                </div>
@@ -117,26 +120,29 @@
       </section>
 
    </drop-zone>
+   <modal :active="showProfile">
+      <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl my-8 sm:max-w-2xl sm:w-full"> 
+         <img :src="user?.thumbnail" v-click-outside="()=> showProfile = false"/>
+      </div>
+   </modal>
 </template>
 
 
 <script lang="ts" setup>
 
 import User from '@/constants/types/User'
-import usePromis from '@/composables/use-promis'
 import apiServices from '@/services/apiServices'
 import UserId from '@/constants/types/UserId'
 import Pm from '@/components/Pm.vue'
 import messageStore from '@/stores/message'
 import MessagePack from 'what-the-pack'
 import { Buffer } from 'buffer'
-import uploadablefile from '@/composables/upload-able-file'
+import { userStore } from '~/stores/user'
 
 //props
 
 let props = defineProps<{
-   user_id: UserId,
-   back: () => void
+   user_id: UserId
 }>()
 
 
@@ -148,25 +154,21 @@ const emit = defineEmits(['delete_user'])
 
 //data
 
-let user = reactive({
-   value: {} as User
-})
-
+let user = reactive({} as User)
 let showOption = ref<boolean>(false)
-
 let ws = ref<any>(null)
-
 const { encode, decode, register } = MessagePack.initialize(2 ^ 20)
-
 let validInput = ref<string>('')
-
-const { addFiles, files } = uploadablefile()
-
+const { addFiles, files } = useUploadAbleFile()
 const percentage = ref<number>(0)
-
 const voiceRecording = ref<boolean>(false)
 let dataArray: Array<ArrayBuffer| Blob> = []
 let mediaRecorder: MediaRecorder
+const router = useRouter()
+const { delete_user } = userStore()
+
+const { second, minutes, hour,startTimer, resetTimer } = useCountTimer()
+const showProfile= ref<boolean>(false)
 
 //enum
 
@@ -183,21 +185,8 @@ const messages = computed(() => {
 })
 
 
-//wathchs
-
-watch(() => props.user_id, async () => {
-   // $forceUpdate()
-   if (ws.readyState === state_ws.OPEN) ws.close()
-   await get_user()
-   test_websocket()
-   onMessage()
-})
-
-
-
-
 await get_user()
-test_websocket()
+onMessage()
 
 
 //hooks
@@ -220,12 +209,9 @@ onUnmounted(() => {
 //methods
 
 async function get_user() {
-   const getUser = usePromis(apiServices.getUser)
-   await getUser.createPromis(props.user_id as string | number)
-   if (getUser.result) {
-      user.value = toRaw(getUser.result)[0]
-   }
-
+   const { data, error } = await useAsyncData('user', ()=> apiServices.getUser(props.user_id))
+   if(data?.value[0]) user = data?.value[0]
+   else throw createError({ statusCode: 404, statusMessage: 'User Not Found', fatal: true})
 }
 
 
@@ -242,13 +228,12 @@ function test_websocket() {
 
 
 function connect_to_ws() {
-   // return new WebSocket('wss://demo.piesocket.com/v3/channel_1?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self')
-   return new WebSocket('ws://localhost:8080')
+   return new WebSocket('wss://socketsbay.com/wss/v2/1/demo/')
 }
 
 
 function customValidate(e: any) {
-   validInput.value = e.target.innerText
+   validInput.value = e.target.innerHTML
    if (!validInput.value || /profanity/gi.test(validInput.value)) {
       return false
    }
@@ -257,7 +242,6 @@ function customValidate(e: any) {
 
 async function onSubmit() {
    try {
-      // register('pm')
       ws.send(encode(validInput.value))
    } catch (e) {
       console.log(e)
@@ -266,18 +250,18 @@ async function onSubmit() {
    push_message(true, validInput.value)
    onMessage()
    validInput.value = ''
-   document.getElementById('entry-element')!.innerText = ''
+   document.getElementById('entry-element')!.innerHTML = ''
 }
 
-function delete_message(id: number): void {
-   messageStore().delete_message(id)
-}
-
-let delete_user = async () => {
-   const du = usePromis(apiServices.deleteUser)
-   await du.createPromis(user.value.id)
-   if (du.result) {
-      emit('delete_user', user.value.id)
+async function deleteUser() {
+   try{
+      await apiServices.deleteUser(props.user_id)
+      const res = delete_user(props.user_id)
+      if (res) {
+         router.push('/')
+      }
+   }catch(e) {
+      console.log(e)
    }
 }
 
@@ -287,9 +271,9 @@ function hide_option(e: any): void {
    }
 }
 
-function push_message(self: boolean, content?: string, img?: string): void {
+function push_message(self: boolean, content?: string, img?: string, audioSrc?: string): void {
    const chatRoom = document.querySelector('#messages')!
-   messageStore().push_message(props.user_id, self, content, img)
+   messageStore().push_message(props.user_id, self, content, img, audioSrc)
    chatRoom.scrollTo(0, chatRoom.scrollHeight)
 }
 
@@ -320,9 +304,7 @@ function trigger_send_file() {
       files.value.forEach(file => {
          send_file(file.file, function (bufferedAmount: number) {
             if (bufferedAmount == 0) {
-               // push_message(true, undefined, file.url)
-               // onMessage()
-               console.log('file sent')
+               push_message(true, undefined, file.url)
                return
             } else {
                let loaded = file.file.size - bufferedAmount
@@ -343,7 +325,6 @@ function send_file(file: any, callback: ((bytesNotSent: number) => void) | null)
       let interval = setInterval(function () {
          //  console.log(ws.bufferedAmount)
          if (ws.bufferedAmount > 0) {
-            console.log('yes')
             callback(ws.bufferedAmount)
          } else {
             callback(0)
@@ -362,9 +343,11 @@ function recordTrigger() {
 
          mediaRecorder = new MediaRecorder(mediaStreamObj);
          mediaRecorder.start()
+         startTimer()
          voiceRecording.value = true
          document.querySelector('#footer .cancelRecording')?.addEventListener('click', ()=> {
             voiceRecording.value = false
+            resetTimer()
          })
 
          mediaRecorder.ondataavailable = function (ev: { data: ArrayBuffer | Blob }) {
@@ -376,11 +359,9 @@ function recordTrigger() {
             let audioData = new Blob(dataArray,{ 'type': 'audio/mp3' })
             dataArray = [];
             let audioSrc = window.URL.createObjectURL(audioData);
-            let audio2 = document.createElement('audio')
-            audio2.setAttribute("controls", "controls")
-            audio2.src = audioSrc
-            messages?.appendChild(audio2)
+            push_message(true, undefined, undefined, audioSrc)
             voiceRecording.value = false
+            resetTimer()
 
          }
 
@@ -388,6 +369,9 @@ function recordTrigger() {
          console.log(e)
       })
 }
+
+
+if(process.client) test_websocket()
 
 </script>
 
@@ -400,9 +384,6 @@ function recordTrigger() {
    }
 }
 
-.animate__animated {
-   --animate-duration: .2s;
-}
 
 .icon-upload {
    left: 16%;
@@ -423,5 +404,8 @@ function recordTrigger() {
          @apply fill-white;
       }
    }
+}
+.animate__animated {
+  --animate-duration: .05s;
 }
 </style>

@@ -85,6 +85,7 @@
       </Modal>
     </transition>
   </div>
+  <NuxtPage/>
 </template>
 
 

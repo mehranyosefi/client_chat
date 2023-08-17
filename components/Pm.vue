@@ -5,11 +5,16 @@
       >
          <div v-if="!message.img"
           :class="['text-white pm rounded-t rounded-r-md rounded-b-lg rounded-bl-2xl px-4 pt-4 pb-2', message.self ? 'bg-blue-700' : 'bg-gray-700']">
-            <p v-text="message.content" class="break-words"></p>
+            <p v-html="message.content" class="break-words"></p>
              <div><small v-text="props.message.date" class="text-gray-400"></small></div>
          </div>
-         <div v-else>
-            <img :src="message.img" width="150" :alt="`image of ${message.img}`" class="border border-gray-800 shadow-md shadow-gray-900">
+         <div v-if="!message.audioSrc && message.img">
+            <img :src="message.img" width="150" :alt="`image of ${message.img}`" 
+            class="border border-gray-800 shadow-md shadow-gray-900 cursor-pointer" @click.stop="show_picture_option = true">
+         </div>
+         <div v-if="!message.img && message.audioSrc">
+            <!-- TODO  custome of audio tag style -->
+            <audio controls :src="message.audioSrc" class="w-[250px]"></audio>
          </div>
          <transition
          enter-active-class="animate__animated animate__zoomIn"
@@ -23,16 +28,20 @@
                </ul>
             </div>
          </transition>
+   
+         <modal :active="show_picture_option">
+            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl my-8 sm:max-w-xl sm:w-full"> 
+               <img :src="message.img" v-click-outside="()=> show_picture_option = false"/>
+            </div>
+         </modal>
+      
       </div>
    </li>
 </template>
 
 <script setup lang="ts">
-
-import { ref, defineProps, onMounted, onUnmounted, defineEmits } from 'vue'
-import usePromis from '@/composables/use-promis'
-import apiServices from '@/services/apiServices'
 import Message from '@/constants/types/Message'
+import messageStore from '@/stores/message'
 
 //props
 
@@ -44,14 +53,12 @@ const props = defineProps<{
 
 //emits
 
-const emit = defineEmits(['delete_message'])
-
 
 
 //data
 
 let showOption = ref<boolean>(false)
-
+const show_picture_option = ref<boolean>(false)
 
 
 
@@ -85,19 +92,18 @@ function hide_option(e: any): void {
    }
 }
 async function delete_message(id: number): Promise<void> {
-   const deleteMessage = usePromis( apiServices.deleteMessage )
-   await deleteMessage.createPromis( id )
-   if(deleteMessage.result) {
-      emit('delete_message', id)
-   }
+   // const deleteMessage = usePromis( apiServices.deleteMessage )
+   // await deleteMessage.createPromis( id )
+   // if(deleteMessage.result) {
+   // }
+   messageStore().delete_message(id)
+   showOption.value = false
 }
+
 </script>
 
 <style scoped lang="scss">
 .pm {
    max-width: 250px;
-}
-.animate__animated {
-  --animate-duration: .2s;
 }
 </style>

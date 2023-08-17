@@ -1,6 +1,6 @@
 import { reactive } from "vue"
 
-export default function usePromis(fn: any) {
+export const usePromis = (fn: any) => {
 
   const createPromis = async (...args: any) => {
     data.loading = true

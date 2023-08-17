@@ -13,7 +13,7 @@ const messageStore = defineStore({
    getters: {},
 
    actions: {
-      push_message(user_id: UserId, self: boolean, content?: string , img?: string) {
+      push_message(user_id: UserId, self: boolean, content?: string , img?: string, audioSrc?: string) {
          const today = new Date();
          const date = today.getFullYear() + '/' + (today.getMonth() + 1) + '/' + today.getDate()
          const message = {
@@ -22,7 +22,8 @@ const messageStore = defineStore({
             content: content,
             img: img,
             self: self,
-            date: date
+            date: date,
+            audioSrc: audioSrc
          }
          this.items.push(message)
 
