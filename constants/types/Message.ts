@@ -4,6 +4,7 @@ interface Message {
    content?: any,
    img?: string,
    date : string,
+   audioSrc?: string,
    self : boolean
 }
 export default Message

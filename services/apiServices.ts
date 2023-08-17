@@ -1,4 +1,3 @@
-// import useFetch from "~/composables/use-custome-fetch"
 const APISettings = {
    headers: {
       'Accept': 'application/json',

@@ -24,7 +24,7 @@ const APISettings = {
 
 
 
-export default async function useCustomeFetch(url: string | Request | Ref<string | Request>, options?: { [key: string ]: any } | undefined ) {
+export const useCustomeFetch =  async (url: string | Request | Ref<string | Request>, options?: { [key: string ]: any } | undefined ) => {
    const config = useRuntimeConfig()
    if(options && options['headers']) options['headers'] = { ...APISettings.headers, ...options['headers'] }
    return await useFetch(config.public.base_url + url, options)

@@ -2,7 +2,7 @@ import { ref } from 'vue'
 
 //progres bar for upload on client
 
-export default function () {
+export const useFileReader = () => {
     const reader = new FileReader()
     const fileUrl = ref<string | ArrayBuffer | null>(null)
     const totalSize = ref<number>(0)

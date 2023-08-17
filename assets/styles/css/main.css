@@ -17,7 +17,9 @@
 ::-webkit-scrollbar-thumb:hover {
    background: darken(rgb(17, 24, 39), 3%);
 }
-
+.animate__animated {
+  animation-duration: 0.3s!important;
+}
 
 .page-enter-active,
 .page-leave-active, .fade-enter-active, .fade-leave-active {
