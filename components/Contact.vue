@@ -1,6 +1,6 @@
 <template>
    <li class="contact">
-      <nuxt-link :to="`/${ user.id }`" class="flex items-center p-3" active-class="bg-blue-800">
+      <nuxt-link :to="`/${ user.id }`" active-class="active">
          <img class="avatar" :src="user.thumbnail" :alt="`image of ${user.thumbnail}`">
          <span class="mr-2" v-text="user.name"></span>
       </nuxt-link>
@@ -43,10 +43,13 @@ const route = useRoute()
 <style lang="postcss" scoped>
 
 .contact {
-   @apply cursor-pointer rounded my-3 bg-gray-800 hover:bg-gray-900;
-
-   &.active {
-      @apply bg-blue-500 hover:bg-blue-500;
+   @apply cursor-pointer;
+   
+   >a{
+      @apply flex items-center p-3 rounded-lg hover:bg-gray-800/25;
+      &.active {
+         @apply bg-blue-800;
+      }
    }
 }
 

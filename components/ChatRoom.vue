@@ -120,11 +120,11 @@
       </section>
 
    </drop-zone>
-   <modal :active="showProfile">
+   <LazyModal v-if="showProfile" :active="showProfile">
       <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl my-8 sm:max-w-2xl sm:w-full"> 
          <img :src="user?.thumbnail" v-click-outside="()=> showProfile = false"/>
       </div>
-   </modal>
+   </LazyModal>
 </template>
 
 

@@ -29,6 +29,8 @@ export default defineNuxtConfig({
       '~/assets/styles/scss/main.scss',
       '~/assets/styles/css/main.css',
       '~/assets/styles/css/tailwind.css',
+      '~/assets/icons/main.css',
+      "@mdi/font/css/materialdesignicons.min.css",
       'animate.css/animate.min.css'
    ],
    vite: {

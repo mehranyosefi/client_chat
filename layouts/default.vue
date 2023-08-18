@@ -7,13 +7,18 @@
                     </p>
                 </div>
             </div>
-            <div class="flex flex-wrap">
+            <div class="flex flex-wrap relative">
                 <section class="rightMenu w-full md:w-1/3 bg-gray-700 h-screen relative md:z-8">
-                    <div class="rightMenu__header h-14 bg-green-400">
-                        <button class="">*</button>
+                    <div class="rightMenu__header bg-green-400 h-14">
+                        <button class="mt-3 mr-6" @click.stop="show_menu = !show_menu"><icon class="text-4xl text-white hover:text-gray-200">mdi-menu</icon></button>
+                        <lazy-menu v-if="show_menu" :active="show_menu" class="w-3/5" :mLeft="-50" :mTop="5">
+                            <nav class="h-80 text-white" v-click-outside="()=> show_menu = false">
+                                <ul><li>kdf</li></ul>
+                            </nav>
+                        </lazy-menu>
                     </div>
                     <nav class="rightMenu__users overflow-y-auto">
-                        <ul class="text-white px-11 py-5">
+                        <ul class="text-white pl-0 pr-3 py-5">
                             <template v-if="items?.length">
                                 <Contact v-for="user in items" :key="user.id" :user="user"
                                     @trigger_conversation="trigger_conversation" />
@@ -31,17 +36,17 @@
                 <slot />
 
             </div>
-            <section v-if="addConversationIcon" class="fixed bottom-6 left-10 md:left-auto  md:right-1/4 z-9 rounded-full bg-blue-700 w-12 h-12
+            <button v-if="addConversationIcon" class="fixed bottom-6 left-10 md:left-auto  md:right-1/4 z-9 rounded-full bg-blue-700 w-12 h-12
                 shadow-md flex items-center justify-center cursor-pointer hover:shadow-2xl hover:bg-blue-800"
-                @click="trigger_show_modal()">
+                @click.stop="trigger_show_modal()">
                 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"
                     viewBox="0 0 24 24" class="w-7 h-7 fill-gray-300">
                     <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
                 </svg>
-            </section>
+            </button>
         </div>
-        <Modal :active="show_modal">
-            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl my-8 sm:max-w-lg sm:w-full">
+        <LazyModal v-if="show_modal" :active="show_modal">
+            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl my-8 sm:max-w-lg sm:w-full" v-click-outside="()=> show_modal = false">
                 <div class="bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <v-form class="bg-gray-900 rounded p-5" @submit="addUser">
                         <div>
@@ -66,14 +71,12 @@
                     </v-form>
                 </div>
             </div>
-        </Modal>
+        </LazyModal>
     </div>
 </template>
  
  
 <script setup lang="ts">
-import apiServices from '~/services/apiServices';
-import { storeToRefs } from 'pinia'
 import { userStore } from '@/stores/user'
 // import usePromis from '@/composables/use-promis'
 import Contact from "@/components/Contact.vue"
@@ -95,7 +98,7 @@ const route = useRoute()
 const innerWidth = ref<number>(0)
 const user_store = userStore()
 const items = user_store.state.items
-
+const show_menu = ref<boolean>(false)
 
 
 if (process.client) {
@@ -155,11 +158,11 @@ async function addUser(value: any, { resetForm }: { resetForm: () => void }) {
 
 }
 
-function trigger_show_modal(): void {
+function trigger_show_modal():void {
     show_modal.value = true
-    nextTick(() => {
+    nextTick(()=>{
         const input = document.getElementById("filed-name") as HTMLInputElement
-        input.focus()
+        input?.focus()
     })
 }
 

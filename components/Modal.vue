@@ -18,7 +18,7 @@
 <template>
    <Teleport to="body">
      <div v-if="active" class="modal"></div>
-     <transition enter-active-class="animate__animated animate__zoomIn"
+     <transition appear enter-active-class="animate__animated animate__zoomIn"
       leave-active-class="animate__animated animate__zoomOut">
        <div v-if="active" class="dialog">
          <div class="dialog-container">
