@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import Message from '@/constants/types/Message'
-import UserId from '@/constants/types/UserId'
+import Message from '~/types/Message'
+import UserId from '~/types/UserId'
 
 
 const messageStore = defineStore({

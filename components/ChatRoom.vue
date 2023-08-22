@@ -130,9 +130,9 @@
 
 <script lang="ts" setup>
 
-import User from '@/constants/types/User'
+import User from '@/types/User'
 import apiServices from '@/services/apiServices'
-import UserId from '@/constants/types/UserId'
+import UserId from '@/types/UserId'
 import Pm from '@/components/Pm.vue'
 import messageStore from '@/stores/message'
 import MessagePack from 'what-the-pack'
@@ -347,6 +347,7 @@ function recordTrigger() {
          voiceRecording.value = true
          document.querySelector('#footer .cancelRecording')?.addEventListener('click', ()=> {
             voiceRecording.value = false
+            mediaStreamObj.getTracks().forEach(track => track.stop())
             resetTimer()
          })
 
@@ -355,13 +356,15 @@ function recordTrigger() {
          }
 
          mediaRecorder.onstop = ()=> {
-            let messages = document.querySelector('#messages .messages')
-            let audioData = new Blob(dataArray,{ 'type': 'audio/mp3' })
-            dataArray = [];
-            let audioSrc = window.URL.createObjectURL(audioData);
-            push_message(true, undefined, undefined, audioSrc)
-            voiceRecording.value = false
-            resetTimer()
+            if(voiceRecording.value){
+               let audioData = new Blob(dataArray,{ 'type': 'audio/mp3' })
+               dataArray = [];
+               let audioSrc = window.URL.createObjectURL(audioData);
+               push_message(true, undefined, undefined, audioSrc)
+               voiceRecording.value = false
+               resetTimer()
+               mediaStreamObj.getTracks().forEach(track => track.stop())
+            }
 
          }
 

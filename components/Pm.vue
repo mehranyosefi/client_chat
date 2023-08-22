@@ -40,7 +40,7 @@
 </template>
 
 <script setup lang="ts">
-import Message from '@/constants/types/Message'
+import Message from '@/types/Message'
 import messageStore from '@/stores/message'
 
 //props

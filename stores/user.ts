@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import User from '@/constants/types/User'
+import User from '@/types/User'
 import apiServices from '~/services/apiServices'
 
 export const userStore = defineStore('user', ()=> {

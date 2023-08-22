@@ -10,10 +10,19 @@
             <div class="flex flex-wrap relative">
                 <section class="rightMenu w-full md:w-1/3 bg-gray-700 h-screen relative md:z-8">
                     <div class="rightMenu__header bg-green-400 h-14">
-                        <button class="mt-3 mr-6" @click.stop="show_menu = !show_menu"><icon class="text-4xl text-white hover:text-gray-200">mdi-menu</icon></button>
-                        <lazy-menu v-if="show_menu" :active="show_menu" class="w-3/5" :mLeft="-50" :mTop="5">
-                            <nav class="h-80 text-white" v-click-outside="()=> show_menu = false">
-                                <ul><li>kdf</li></ul>
+                        <button class="mt-3 mr-6" @click.stop="show_menu = !show_menu">
+                            <icon class="text-4xl text-white hover:text-gray-200">mdi-menu</icon>
+                        </button>
+                        <lazy-menu v-if="show_menu" :active="show_menu" class="w-3/5" :mLeft="-50" :mTop="9">
+                            <nav class="h-80 text-white" v-click-outside="() => show_menu = false">
+                                <ul class="text-white pl-0 px-1 py-5">
+                                    <li class="rightMenu__item">
+                                        <button>حساب</button>
+                                    </li>
+                                    <li class="rightMenu__item">
+                                        <button>تنظیمات</button>
+                                    </li>
+                                </ul>
                             </nav>
                         </lazy-menu>
                     </div>
@@ -46,7 +55,8 @@
             </button>
         </div>
         <LazyModal v-if="show_modal" :active="show_modal">
-            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl my-8 sm:max-w-lg sm:w-full" v-click-outside="()=> show_modal = false">
+            <div class="relative bg-gray-900 rounded-lg overflow-hidden shadow-xl my-8 sm:max-w-lg sm:w-full"
+                v-click-outside="() => show_modal = false">
                 <div class="bg-gray-900 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <v-form class="bg-gray-900 rounded p-5" @submit="addUser">
                         <div>
@@ -80,8 +90,8 @@
 import { userStore } from '@/stores/user'
 // import usePromis from '@/composables/use-promis'
 import Contact from "@/components/Contact.vue"
-import UserId from '@/constants/types/UserId'
-import User from '@/constants/types/User'
+import UserId from '@/types/UserId'
+import User from '@/types/User'
 
 
 
@@ -143,7 +153,6 @@ function customValidate(value: any) {
     return true
 }
 
-
 async function addUser(value: any, { resetForm }: { resetForm: () => void }) {
     const user = {
         name: value.name,
@@ -158,12 +167,15 @@ async function addUser(value: any, { resetForm }: { resetForm: () => void }) {
 
 }
 
-function trigger_show_modal():void {
+function trigger_show_modal(): void {
     show_modal.value = true
-    nextTick(()=>{
-        const input = document.getElementById("filed-name") as HTMLInputElement
-        input?.focus()
-    })
+    setTimeout(()=> {
+        nextTick(() => {
+            const input = document.getElementById("filed-name") as HTMLInputElement
+            input?.focus()
+        })
+    }, 500)
+    
 }
 
 
@@ -171,9 +183,17 @@ function trigger_show_modal():void {
  
  
 <style lang="postcss" scoped>
-.rightMenu{
-    &__users{
+.rightMenu {
+    &__users {
         height: calc(100vh - 56px);
     }
-}
-</style>
+
+    &__item {
+        @apply cursor-pointer;
+
+        button {
+            @apply w-full flex items-center p-3 rounded-lg hover:bg-gray-800/25;
+        }
+
+    }
+}</style>

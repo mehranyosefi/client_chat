@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       '~/assets/styles/css/main.css',
       '~/assets/styles/css/tailwind.css',
       '~/assets/icons/main.css',
-      "@mdi/font/css/materialdesignicons.min.css",
+      '@mdi/font/css/materialdesignicons.min.css',
       'animate.css/animate.min.css'
    ],
    vite: {
@@ -42,5 +42,4 @@ export default defineNuxtConfig({
          },
       },
    },
-   buildModules: ['@nuxt/typescript-build']
 })

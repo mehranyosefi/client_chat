@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import UploadableFile from '~~/constants/types/UploadableFile'
+import UploadableFile from '~~/types/UploadableFile'
 
 export const useUploadAbleFile = ()=> {
     let files = ref<UploadableFile[]>([])

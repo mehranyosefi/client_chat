@@ -1,20 +1,3 @@
-<!-- <template>
-   <div class="relative z-10">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
-      <div class="fixed z-10 inset-0 overflow-y-auto">
-         <div class="flex items-center justify-center min-h-full p-4 sm:p-0">
-            <slot>
-            </slot>
-         </div>
-      </div>
-   </div>
-</template>
-
-<script setup lang="ts">
-
-</script> -->
-
-
 <template>
    <Teleport to="body">
      <div v-if="active" class="modal"></div>

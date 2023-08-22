@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import User from '@/constants/types/User'
+import User from '@/types/User'
 
 //props
 
