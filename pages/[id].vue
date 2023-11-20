@@ -40,7 +40,6 @@ definePageMeta({
     mode: 'in-out'
   },
   middleware (to, from) {
-   //  to.meta.pageTransition.name = +to.params.id > +from.params.id ? 'slide-left' : 'slide-right'
    const innerWidth = ref<number>(0)
    if(process.client) {
       innerWidth.value = window.innerWidth

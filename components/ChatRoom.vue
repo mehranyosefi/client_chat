@@ -195,6 +195,9 @@ onMounted(() => {
    document.addEventListener('click', (e) => {
       hide_option(e)
    })
+   setTimeout(()=> {
+      document.getElementById('entry-element')?.focus()
+   },500)
 })
 
 onUnmounted(() => {
