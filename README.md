@@ -18,8 +18,9 @@ npm install
 pnpm install
 ```
 
-##watching better result of project 
+## to watching better result of project 
 
+‍‍```bash
 npm install -g json-server
 
 json-server --watch db.json --port 4000
